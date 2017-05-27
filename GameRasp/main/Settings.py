@@ -1,8 +1,10 @@
 #Options
-Title="KLK"
+Title="JumPi"
 WIDTH=360
 HEIGHT=480
-FPS=30
+FPS=60
+FONT_NAME= 'arial'
+
 #Player sett
 PLAYER_ACC=0.5
 PLAYER_FRICTION=-0.12

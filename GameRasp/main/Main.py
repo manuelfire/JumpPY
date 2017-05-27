@@ -15,9 +15,11 @@ class Game:
         pg.display.set_caption(Title)
         self.clock=pg.time.Clock()
         self.running=True
+        self.font_name =pg.font.match_font(FONT_NAME)
         pass
     def new(self):
         #new game
+        self.score=0
         self.all_sprites= pg.sprite.Group()
         self.platforms = pg.sprite.Group()
         self.player= Player(self)
@@ -55,6 +57,16 @@ class Game:
                 plat.rect.y +=abs(self.player.vel.y)
                 if plat.rect.top >=HEIGHT:
                     plat.kill()
+                    self.score +=5
+        
+        #Death
+        if self.player.rect.bottom >HEIGHT:
+            for sprite in self.all_sprites:
+                sprite.rect.y -= max(self.player.vel.y, 10)
+                if sprite.rect.bottom <0:
+                    sprite.kill()
+        if len(self.platforms)==0:
+            self.playing=False
         
         #nuevas plataformas
         while len(self.platforms) < 6 :
@@ -77,11 +89,20 @@ class Game:
     def draw(self):
         self.screen.fill(BLACK)
         self.all_sprites.draw(self.screen)
+        self.draw_text(str(self.score), 22, WHITE, WIDTH/2, 15)
         pg.display.flip()
         pass
     def show_start_screen(self):
         pass
     def show_go_screen(self):
+        pass
+    def draw_text(self,text,size,color,x,y):
+        font=pg.font.Font(self.font_name,size)
+        text_surface=font.render(text,True,color)
+        text_rect =text_surface.get_rect()
+        text_rect.midtop=(x,y)
+        self.screen.blit(text_surface,text_rect)
+        
         pass
 
 g=Game()
