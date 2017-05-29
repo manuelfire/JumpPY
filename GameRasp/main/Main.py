@@ -31,7 +31,7 @@ class Game:
            p =Platform(self,*plat)
            self.all_sprites.add(p)
            self.platforms.add(p)
-       
+        pg.mixer.music.load(path.join(self.snd_dir,"BG1.ogg"))
         self.run()
         pass
     def load_data(self):
@@ -40,15 +40,20 @@ class Game:
         
         self.spritesheet=Spritesheet(path.join(img_dir,SPRITESHEETCHAR))
         self.spritefloor=Spritesheet(path.join(img_dir,SPRITESHEET))
+        
+        #load sound
+        self.snd_dir=path.join(self.dir,'Sound')
+        self.jump_sound =pg.mixer.Sound(path.join(self.snd_dir,'Jump.wav'))
     def run(self):
         #gameloop
-        
+        pg.mixer.music.play(loops=-1)
         self.playing=True
         while self.playing:
             self.clock.tick(FPS)
             self.events()
             self.update()
             self.draw()
+        pg.mixer.music.fadeout(1000)
             
         pass
     def update(self):
@@ -56,8 +61,14 @@ class Game:
         if self.player.vel.y > 0:
             hits= pg.sprite.spritecollide(self.player, self.platforms, False)
             if hits:
-                self.player.pos.y= hits[0].rect.top + 1
-                self.player.vel.y=0
+                lowest= hits[0]
+                for hit in hits:
+                    if hit.rect.bottom > lowest.rect.centery:
+                        lowest=hit
+                if self.player.pos.y <lowest.rect.bottom:
+                    self.player.pos.y= lowest.rect.top +1
+                    self.player.vel.y=0
+                    self.player.jumping=False
         
         #if player reaches near edge move camera
         if self.player.rect.top <= HEIGHT /4:
@@ -93,11 +104,21 @@ class Game:
                 self.running=False
             if event.type== pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
+                    
                     self.player.jump()
+                    
+            if event.type== pg.KEYUP:
+                if event.key == pg.K_SPACE:
+                    self.player.jump_cut()
+            if self.player.vel.y > 1:
+                self.player.falling=True
+            else:
+                self.player.falling=False
         pass
     def draw(self):
         self.screen.fill(BGCOLOR)
         self.all_sprites.draw(self.screen)
+        self.screen.blit(self.player.image,self.player.rect)
         self.draw_text(str(self.score), 22, WHITE, WIDTH/2, 15)
         pg.display.flip()
        

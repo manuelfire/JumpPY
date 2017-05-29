@@ -63,7 +63,9 @@ class Player(pg.sprite.Sprite):
             frame.set_colorkey(GREY)
             self.walk_frames_l.append(pg.transform.flip(frame,True,False))
             
-                                      
+        self.fall_frames =[self.game.spritesheet.get_image(27,0,16,30)]
+        for frame in self.fall_frames:
+            frame.set_colorkey(GREY)                 
                                       
         self.jump_frames=[self.game.spritesheet.get_image(11,16,14,15),
                           self.game.spritesheet.get_image(0,0,11,15),
@@ -75,9 +77,17 @@ class Player(pg.sprite.Sprite):
          self.rect.y +=2
          hits=pg.sprite.spritecollide(self,self.game.platforms,False)
          self.rect.y -=2
-         if hits:
+         if hits and not self.jumping:
+             self.game.jump_sound.play()
+             self.jumping=True
+             self.walking=False
              self.vel.y=-PLAYER_JUMP
-       
+    
+    def jump_cut(self):
+        if self.jumping:
+            if self.vel.y < -3:
+                self.vel.y=-3
+    
     def update(self):
         self.animate()
         self.acc =vec(0,PLAYER_GRAV)
@@ -109,6 +119,14 @@ class Player(pg.sprite.Sprite):
         else:
             self.walking=False
             
+        if self.jumping and not self.walking:
+             if now-self.last_update> 400:
+                self.last_update=now
+                self.current_frame=(self.current_frame+1)% len(self.jump_frames)
+                bottom= self.rect.bottom
+                self.image=self.jump_frames[self.current_frame]
+                self.rect=self.image.get_rect()
+                self.rect.bottom=bottom
         if self.walking:
             if now-self.last_update>100:
                 self.last_update=now
@@ -127,6 +145,15 @@ class Player(pg.sprite.Sprite):
                 self.current_frame=(self.current_frame+1)% len(self.standing_frames)
                 bottom= self.rect.bottom
                 self.image=self.standing_frames[self.current_frame]
+                self.rect=self.image.get_rect()
+                self.rect.bottom=bottom
+        
+        if self.falling:
+            if now-self.last_update> 400:
+                self.last_update=now
+                self.current_frame=(self.current_frame+1)% len(self.falling)
+                bottom= self.rect.bottom
+                self.image=self.falling[self.current_frame]
                 self.rect=self.image.get_rect()
                 self.rect.bottom=bottom
         
