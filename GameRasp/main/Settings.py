@@ -14,6 +14,7 @@ PLAYER_JUMP=22
 #Game Prop
 BOOST_POWER=60
 POW_SPAWN= 7
+MOB_Freq= 8000
 
 #Plataformas formato (x,y,thicknes)
 PLATFORM_LIST=[(0, HEIGHT-40),
@@ -33,3 +34,4 @@ BGCOLOR=LIGHTBLUE
 SPRITESHEET="sprite_floor.png"
 SPRITESHEETCHAR="sprite_char.png"
 SPRITEPOW="power.png"
+SPRITEenemies='enemies.png'

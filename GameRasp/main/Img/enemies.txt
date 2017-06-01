@@ -1,0 +1,7 @@
+bat_fly,0,0,88,37
+ghost_dead,93,0,51,73
+ghost_normal,149,0,51,73
+bat,0,42,70,47
+ghost,149,78,51,73
+spinner,0,94,63,62
+spinner_spin,68,94,61,61

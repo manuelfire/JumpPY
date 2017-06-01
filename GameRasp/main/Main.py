@@ -26,11 +26,12 @@ class Game:
         self.all_sprites= pg.sprite.Group()
         self.platforms = pg.sprite.Group()
         self.powerups=pg.sprite.Group()
+        self.mobs =pg.sprite.Group()
         self.player= Player(self)
         
         for plat in PLATFORM_LIST:
            Platform(self,*plat)
-           
+        self.mob_timer =0
         pg.mixer.music.load(path.join(self.snd_dir,"BG1.ogg"))
         self.run()
         pass
@@ -41,6 +42,7 @@ class Game:
         self.spritesheet=Spritesheet(path.join(img_dir,SPRITESHEETCHAR))
         self.spritefloor=Spritesheet(path.join(img_dir,SPRITESHEET))
         self.spritepower=Spritesheet(path.join(img_dir,SPRITEPOW))
+        self.spritemob=Spritesheet(path.join(img_dir,SPRITEenemies))
         
         #load sound
         self.snd_dir=path.join(self.dir,'Sound')
@@ -59,6 +61,13 @@ class Game:
         pass
     def update(self):
         self.all_sprites.update()
+        #spawn mobs
+        now=pg.time.get_ticks()
+        if now -self.mob_timer > MOB_Freq +random.choice([-1000,1000,-500,0,2000,-2000]):
+            self.mob_timer=now
+            Mob(self)
+        
+        
         if self.player.vel.y > 0:
             hits= pg.sprite.spritecollide(self.player, self.platforms, False)
             if hits:
@@ -75,6 +84,8 @@ class Game:
         #if player reaches near edge move camera
         if self.player.rect.top <= HEIGHT /4:
             self.player.pos.y +=max(abs(self.player.vel.y),2)
+            for mob in self.mobs:
+                mob.rect.y +=max(abs(self.player.vel.y),2)
             for plat in self.platforms:
                 plat.rect.y +=max(abs(self.player.vel.y),2)
                 if plat.rect.top >=HEIGHT:
