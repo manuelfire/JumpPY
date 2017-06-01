@@ -11,10 +11,14 @@ PLAYER_FRICTION=-0.12
 PLAYER_GRAV= 1
 PLAYER_JUMP=22
 
+#Game Prop
+BOOST_POWER=60
+POW_SPAWN= 7
+
 #Plataformas formato (x,y,thicknes)
 PLATFORM_LIST=[(0, HEIGHT-40),
                (WIDTH/2-50,HEIGHT*3/4),
-               (350,200),
+               (WIDTH-100,200),
                (175,100)]
 
 #colors
@@ -28,3 +32,4 @@ GREY=(157,142,135)
 BGCOLOR=LIGHTBLUE
 SPRITESHEET="sprite_floor.png"
 SPRITESHEETCHAR="sprite_char.png"
+SPRITEPOW="power.png"

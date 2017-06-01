@@ -25,12 +25,12 @@ class Game:
         self.score=0
         self.all_sprites= pg.sprite.Group()
         self.platforms = pg.sprite.Group()
+        self.powerups=pg.sprite.Group()
         self.player= Player(self)
-        self.all_sprites.add(self.player)
+        
         for plat in PLATFORM_LIST:
-           p =Platform(self,*plat)
-           self.all_sprites.add(p)
-           self.platforms.add(p)
+           Platform(self,*plat)
+           
         pg.mixer.music.load(path.join(self.snd_dir,"BG1.ogg"))
         self.run()
         pass
@@ -40,6 +40,7 @@ class Game:
         
         self.spritesheet=Spritesheet(path.join(img_dir,SPRITESHEETCHAR))
         self.spritefloor=Spritesheet(path.join(img_dir,SPRITESHEET))
+        self.spritepower=Spritesheet(path.join(img_dir,SPRITEPOW))
         
         #load sound
         self.snd_dir=path.join(self.dir,'Sound')
@@ -65,10 +66,11 @@ class Game:
                 for hit in hits:
                     if hit.rect.bottom > lowest.rect.centery:
                         lowest=hit
-                if self.player.pos.y <lowest.rect.bottom:
-                    self.player.pos.y= lowest.rect.top +1
-                    self.player.vel.y=0
-                    self.player.jumping=False
+                if self.player.pos.x <lowest.rect.right -10 and self.player.pos.x >lowest.rect.left-10:
+                    if self.player.pos.y <lowest.rect.centery:
+                        self.player.pos.y= lowest.rect.top +1
+                        self.player.vel.y=0
+                        self.player.jumping=False
         
         #if player reaches near edge move camera
         if self.player.rect.top <= HEIGHT /4:
@@ -78,7 +80,12 @@ class Game:
                 if plat.rect.top >=HEIGHT:
                     plat.kill()
                     self.score +=5
-        
+        #player+powerup
+        pow_hits=pg.sprite.spritecollide(self.player, self.powerups, True)
+        for pow in pow_hits:
+            if pow.type=='boost':
+                self.player.vel.y = -BOOST_POWER
+                self.player.jumping=False
         #Death
         if self.player.rect.bottom >HEIGHT:
             for sprite in self.all_sprites:
@@ -89,12 +96,11 @@ class Game:
             self.playing=False
         
         #nuevas plataformas
-        while len(self.platforms) < 6 :
+        while len(self.platforms) < 5:
             width= random.randrange(50,100)
-            p=Platform(self,random.randrange(0,WIDTH-width), random.randrange(-75,-30))
+            Platform(self,random.randrange(0,WIDTH-width), random.randrange(-55,-PLAYER_JUMP))
             
-            self.platforms.add(p)
-            self.all_sprites.add(p)
+            
         pass
     def events(self):
         for event in pg.event.get():

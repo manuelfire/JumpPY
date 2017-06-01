@@ -6,7 +6,7 @@ Created on May 26, 2017
 #Sprite classesi
 import pygame as pg
 from Settings import *
-from random import choice
+from random import choice, randrange
 vec= pg.math.Vector2
 class Spritesheet:
     def __init__(self,filename):
@@ -22,11 +22,17 @@ class Spritesheet:
         image.blit(self.spritesheet,(0,0),(x,y,width,height))
         image= pg.transform.scale(image,(width*2,height*2))
         return image
+    def get_imagepow(self,x,y,width,height):
+        image=pg.Surface((width,height))
+        image.blit(self.spritesheet,(0,0),(x,y,width,height))
+        image= pg.transform.scale(image,(width//5,height//5))
+        return image
     
     
 class Player(pg.sprite.Sprite):
     def __init__(self,game):
-        pg.sprite.Sprite.__init__(self)
+        self.groups=game.all_sprites
+        pg.sprite.Sprite.__init__(self,self.groups)
         self.game=game
         self.walking=False
         self.jumping =False
@@ -71,7 +77,9 @@ class Player(pg.sprite.Sprite):
                           self.game.spritesheet.get_image(0,0,11,15),
                           self.game.spritesheet.get_image(57,49,10,14)]
         for frame in self.jump_frames:
-            frame.set_colorkey(BLACK)
+            frame.set_colorkey(GREY)
+            
+            
     
     def jump(self):
          self.rect.y +=2
@@ -140,7 +148,7 @@ class Player(pg.sprite.Sprite):
                 self.rect.bottom=bottom
             
         if not self.jumping and not self.walking:
-            if now-self.last_update> 400:
+            if now-self.last_update> 900:
                 self.last_update=now
                 self.current_frame=(self.current_frame+1)% len(self.standing_frames)
                 bottom= self.rect.bottom
@@ -151,9 +159,9 @@ class Player(pg.sprite.Sprite):
         if self.falling:
             if now-self.last_update> 400:
                 self.last_update=now
-                self.current_frame=(self.current_frame+1)% len(self.falling)
+                self.current_frame=(self.current_frame+1)% len(self.fall_frames)
                 bottom= self.rect.bottom
-                self.image=self.falling[self.current_frame]
+                self.image=self.fall_frames[self.current_frame]
                 self.rect=self.image.get_rect()
                 self.rect.bottom=bottom
         
@@ -162,7 +170,8 @@ class Player(pg.sprite.Sprite):
 
 class Platform(pg.sprite.Sprite):
     def __init__(self,game,x,y,):
-        pg.sprite.Sprite.__init__(self)
+        self.groups=game.all_sprites,game.platforms
+        pg.sprite.Sprite.__init__(self,self.groups)
         self.game=game
         images = [self.game.spritefloor.get_floor(0,0,62,21),
                   self.game.spritefloor.get_floor(0,22,42,21)]
@@ -171,3 +180,56 @@ class Platform(pg.sprite.Sprite):
         self.rect= self.image.get_rect()
         self.rect.x=x
         self.rect.y =y
+        if self.game.score >100:
+            if randrange(100) < POW_SPAWN:
+                Powerup(self.game,self)
+        
+class Powerup(pg.sprite.Sprite):
+    def __init__(self,game,plat):
+        self.groups =game.all_sprites,game.powerups
+        pg.sprite.Sprite.__init__(self,self.groups)
+        self.game=game
+        self.plat=plat
+        self.current_frame=0
+        self.last_update=0
+        self.load_images()
+        self.type=choice(['boost'])
+        self.image=self.power_frames[0]
+        self.rect=self.image.get_rect()
+        self.rect.centerx=self.plat.rect.centerx
+        self.rect.bottom=self.plat.rect.top-5
+    def update(self):
+        
+        self.animate()
+        self.rect.bottom=self.plat.rect.top-5
+        
+            
+        if not self.game.platforms.has(self.plat):
+            self.kill()
+      
+        
+    def animate(self):
+        now = pg.time.get_ticks()
+        if now-self.last_update> 100:
+                self.last_update=now
+                self.current_frame=(self.current_frame+1)% len(self.power_frames)
+                bottom= self.rect.bottom
+                self.image=self.power_frames[self.current_frame]
+        
+    def load_images(self):
+        self.power_frames=[self.game.spritepower.get_imagepow(128,850,144,240),
+                            self.game.spritepower.get_imagepow(529,48,144,254),
+                            self.game.spritepower.get_imagepow(128,449,144,272),
+                            self.game.spritepower.get_imagepow(128,48,144,272),
+                            self.game.spritepower.get_imagepow(529,850,144,304),
+                            self.game.spritepower.get_imagepow(529,449,144,304)]
+             
+        for frame in self.power_frames:
+            frame.set_colorkey(GREEEN)
+        
+        
+        
+        
+        
+        
+        
