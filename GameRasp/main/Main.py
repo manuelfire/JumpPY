@@ -2,10 +2,6 @@ import pygame as pg
 import random
 from Settings import *
 from Sprites import *
-from platform import platform
-from main.Settings import PLATFORM_LIST
-from main.Sprites import Platform
-from test.inspect_fodder import Tit
 from os import path
 
 class Game:
@@ -66,7 +62,10 @@ class Game:
         if now -self.mob_timer > MOB_Freq +random.choice([-1000,1000,-500,0,2000,-2000]):
             self.mob_timer=now
             Mob(self)
-        
+         # hit mobs?
+        mob_hits = pg.sprite.spritecollide(self.player, self.mobs, False)
+        if mob_hits:
+            self.playing = False
         
         if self.player.vel.y > 0:
             hits= pg.sprite.spritecollide(self.player, self.platforms, False)

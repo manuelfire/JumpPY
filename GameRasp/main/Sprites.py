@@ -258,8 +258,10 @@ class Mob(pg.sprite.Sprite):
             self.image_down=self.mob_frames[5]
         self.image=self.image_up
         self.rect=self.image.get_rect()
-        
+        self.rect.centerx = choice([-100, WIDTH + 100])
+       
         self.vx= randrange(1,4)
+        self.rect.y=randrange(HEIGHT/2)
         if self.rect.centerx > WIDTH:
             self.vx *= -1
         
@@ -280,7 +282,7 @@ class Mob(pg.sprite.Sprite):
             self.image=self.image_down
         self.rect=self.image.get_rect()
         self.rect.center=center
-        self.rect.y= self.vy
+        self.rect.y += self.vy
         if self.rect.left > WIDTH+100 or self.rect.right < -100:
             self.kill()
         
